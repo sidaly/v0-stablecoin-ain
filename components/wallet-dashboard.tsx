@@ -5,7 +5,11 @@ import { Button } from "@/components/ui/button"
 import { Eye, EyeOff, Plus, Send, ArrowDownLeft } from "lucide-react"
 import { useState } from "react"
 
-export function WalletDashboard() {
+interface WalletDashboardProps {
+  onTransferClick?: () => void
+}
+
+export function WalletDashboard({ onTransferClick }: WalletDashboardProps) {
   const [showBalance, setShowBalance] = useState(true)
 
   const stablecoins = [
@@ -41,15 +45,24 @@ export function WalletDashboard() {
 
       {/* Quick Actions */}
       <div className="grid grid-cols-3 gap-4">
-        <Button className="bg-purple-600 hover:bg-purple-700 text-white flex flex-col py-6">
+        <Button
+          className="bg-purple-600 hover:bg-purple-700 text-white flex flex-col py-6"
+          onClick={() => onTransferClick?.()}
+        >
           <Plus className="w-6 h-6 mb-2" />
           <span className="text-sm">Add Funds</span>
         </Button>
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white flex flex-col py-6">
+        <Button
+          className="bg-blue-600 hover:bg-blue-700 text-white flex flex-col py-6"
+          onClick={() => onTransferClick?.()}
+        >
           <Send className="w-6 h-6 mb-2" />
           <span className="text-sm">Send</span>
         </Button>
-        <Button className="bg-green-600 hover:bg-green-700 text-white flex flex-col py-6">
+        <Button
+          className="bg-green-600 hover:bg-green-700 text-white flex flex-col py-6"
+          onClick={() => onTransferClick?.()}
+        >
           <ArrowDownLeft className="w-6 h-6 mb-2" />
           <span className="text-sm">Receive</span>
         </Button>
@@ -80,6 +93,22 @@ export function WalletDashboard() {
           </Card>
         ))}
       </div>
+
+      {/* Quick Transfer Button */}
+      <Card className="bg-gradient-to-r from-purple-600/20 to-blue-600/20 border-purple-500/30">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-white font-semibold">Ready to Transfer?</h3>
+              <p className="text-gray-300 text-sm">Send stablecoins to anyone, anywhere</p>
+            </div>
+            <Button className="bg-purple-600 hover:bg-purple-700 text-white" onClick={() => onTransferClick?.()}>
+              <Send className="w-4 h-4 mr-2" />
+              Transfer Now
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }
