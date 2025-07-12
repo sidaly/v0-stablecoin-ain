@@ -22,7 +22,6 @@ export function FinancialDashboard() {
   const [analytics, setAnalytics] = useState<any>({ analytics: [], totalSpent: 0 })
   const [alerts, setAlerts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [needsSetup, setNeedsSetup] = useState(false)
 
   // Mock user ID - in a real app, this would come from authentication
   const userId = "550e8400-e29b-41d4-a716-446655440000"
@@ -42,16 +41,6 @@ export function FinancialDashboard() {
         getFinancialAlerts(userId),
       ])
 
-      // Check if any data exists to determine if setup is needed
-      const hasAnyData =
-        (budgetsResult.success && budgetsResult.budgets.length > 0) ||
-        (expensesResult.success && expensesResult.expenses.length > 0) ||
-        (goalsResult.success && goalsResult.goals.length > 0)
-
-      if (!hasAnyData) {
-        setNeedsSetup(true)
-      }
-
       if (budgetsResult.success) setBudgets(budgetsResult.budgets)
       if (expensesResult.success) setExpenses(expensesResult.expenses)
       if (goalsResult.success) setGoals(goalsResult.goals)
@@ -59,7 +48,6 @@ export function FinancialDashboard() {
       if (alertsResult.success) setAlerts(alertsResult.alerts)
     } catch (error) {
       console.error("Error loading financial data:", error)
-      setNeedsSetup(true)
     } finally {
       setLoading(false)
     }
@@ -90,47 +78,6 @@ export function FinancialDashboard() {
         <div className="text-center text-white">
           <h2 className="text-2xl font-bold mb-2">Loading Financial Data...</h2>
         </div>
-      </div>
-    )
-  }
-
-  if (needsSetup) {
-    return (
-      <div className="space-y-6">
-        <Card className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 border-purple-800">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center">
-              <AlertTriangle className="w-5 h-5 mr-2 text-yellow-400" />
-              Financial Management Setup Required
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-gray-300">
-              Welcome to Financial Management! To get started, you need to set up the database tables.
-            </p>
-
-            <div className="bg-gray-800/50 rounded-lg p-4">
-              <h4 className="text-white font-medium mb-2">Setup Instructions:</h4>
-              <ol className="text-gray-300 text-sm space-y-1 list-decimal list-inside">
-                <li>Run the financial management table creation script</li>
-                <li>Run the seed data script to populate sample data</li>
-                <li>Refresh this page to see your financial dashboard</li>
-              </ol>
-            </div>
-
-            <div className="bg-blue-900/20 border border-blue-800 rounded-lg p-4">
-              <h4 className="text-blue-400 font-medium mb-2">Quick Start:</h4>
-              <p className="text-gray-300 text-sm">
-                The scripts will create expense categories, sample budgets, financial goals, and demo transactions
-                linked to your existing wallet data.
-              </p>
-            </div>
-
-            <Button onClick={loadFinancialData} className="w-full bg-purple-600 hover:bg-purple-700">
-              Check Setup Status
-            </Button>
-          </CardContent>
-        </Card>
       </div>
     )
   }

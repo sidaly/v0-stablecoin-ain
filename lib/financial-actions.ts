@@ -38,19 +38,6 @@ export async function createBudget(formData: FormData) {
 
 export async function getUserBudgets(userId: string) {
   try {
-    // Check if budgets table exists first
-    const tableExists = await sql`
-      SELECT EXISTS (
-        SELECT FROM information_schema.tables 
-        WHERE table_schema = 'public' 
-        AND table_name = 'budgets'
-      );
-    `
-
-    if (!tableExists[0]?.exists) {
-      return { success: true, budgets: [] }
-    }
-
     const budgets = await sql`
       SELECT 
         b.*,
@@ -78,7 +65,7 @@ export async function getUserBudgets(userId: string) {
     return { success: true, budgets }
   } catch (error) {
     console.error("Error fetching budgets:", error)
-    return { success: true, budgets: [] } // Return empty array instead of error
+    return { success: false, error: "Failed to fetch budgets" }
   }
 }
 
@@ -148,18 +135,6 @@ export async function addExpense(formData: FormData) {
 
 export async function getUserExpenses(userId: string, limit = 50) {
   try {
-    const tableExists = await sql`
-      SELECT EXISTS (
-        SELECT FROM information_schema.tables 
-        WHERE table_schema = 'public' 
-        AND table_name = 'expense_transactions'
-      );
-    `
-
-    if (!tableExists[0]?.exists) {
-      return { success: true, expenses: [] }
-    }
-
     const expenses = await sql`
       SELECT 
         et.*,
@@ -178,25 +153,13 @@ export async function getUserExpenses(userId: string, limit = 50) {
     return { success: true, expenses }
   } catch (error) {
     console.error("Error fetching expenses:", error)
-    return { success: true, expenses: [] }
+    return { success: false, error: "Failed to fetch expenses" }
   }
 }
 
 // Category Management Actions
 export async function getUserCategories(userId: string) {
   try {
-    const tableExists = await sql`
-      SELECT EXISTS (
-        SELECT FROM information_schema.tables 
-        WHERE table_schema = 'public' 
-        AND table_name = 'expense_categories'
-      );
-    `
-
-    if (!tableExists[0]?.exists) {
-      return { success: true, categories: [] }
-    }
-
     const categories = await sql`
       SELECT * FROM expense_categories 
       WHERE user_id = ${userId} AND is_active = true
@@ -206,7 +169,7 @@ export async function getUserCategories(userId: string) {
     return { success: true, categories }
   } catch (error) {
     console.error("Error fetching categories:", error)
-    return { success: true, categories: [] }
+    return { success: false, error: "Failed to fetch categories" }
   }
 }
 
@@ -265,18 +228,6 @@ export async function createFinancialGoal(formData: FormData) {
 
 export async function getUserFinancialGoals(userId: string) {
   try {
-    const tableExists = await sql`
-      SELECT EXISTS (
-        SELECT FROM information_schema.tables 
-        WHERE table_schema = 'public' 
-        AND table_name = 'financial_goals'
-      );
-    `
-
-    if (!tableExists[0]?.exists) {
-      return { success: true, goals: [] }
-    }
-
     const goals = await sql`
       SELECT 
         fg.*,
@@ -291,7 +242,7 @@ export async function getUserFinancialGoals(userId: string) {
     return { success: true, goals }
   } catch (error) {
     console.error("Error fetching financial goals:", error)
-    return { success: true, goals: [] }
+    return { success: false, error: "Failed to fetch financial goals" }
   }
 }
 
@@ -335,18 +286,6 @@ export async function updateGoalProgress(goalId: string, amount: number) {
 // Analytics Actions
 export async function getSpendingAnalytics(userId: string, period = "month") {
   try {
-    const tableExists = await sql`
-      SELECT EXISTS (
-        SELECT FROM information_schema.tables 
-        WHERE table_schema = 'public' 
-        AND table_name = 'expense_transactions'
-      );
-    `
-
-    if (!tableExists[0]?.exists) {
-      return { success: true, analytics: [], totalSpent: 0 }
-    }
-
     const periodCondition =
       period === "week"
         ? "transaction_date >= NOW() - INTERVAL '7 days'"
@@ -382,24 +321,12 @@ export async function getSpendingAnalytics(userId: string, period = "month") {
     }
   } catch (error) {
     console.error("Error fetching spending analytics:", error)
-    return { success: true, analytics: [], totalSpent: 0 }
+    return { success: false, error: "Failed to fetch analytics" }
   }
 }
 
 export async function getFinancialAlerts(userId: string) {
   try {
-    const tableExists = await sql`
-      SELECT EXISTS (
-        SELECT FROM information_schema.tables 
-        WHERE table_schema = 'public' 
-        AND table_name = 'financial_alerts'
-      );
-    `
-
-    if (!tableExists[0]?.exists) {
-      return { success: true, alerts: [] }
-    }
-
     const alerts = await sql`
       SELECT 
         fa.*,
@@ -416,7 +343,7 @@ export async function getFinancialAlerts(userId: string) {
     return { success: true, alerts }
   } catch (error) {
     console.error("Error fetching financial alerts:", error)
-    return { success: true, alerts: [] }
+    return { success: false, error: "Failed to fetch alerts" }
   }
 }
 

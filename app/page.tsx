@@ -3,24 +3,36 @@
 import { useState, useEffect } from "react"
 import { AuroraBackground } from "@/components/aurora-background"
 import { BottomNav } from "@/components/bottom-nav"
+import { FuturisticHome } from "@/components/futuristic-home"
 import { WalletDashboard } from "@/components/wallet-dashboard"
 import { TransferWorking } from "@/components/transfer-working"
 import { CardsManagement } from "@/components/cards-management"
 import { AnalyticsDashboard } from "@/components/analytics-dashboard"
 import { SwipeIndicator } from "@/components/swipe-indicator"
 import { useSwipe } from "@/hooks/use-swipe"
-import { Bell, User } from "lucide-react"
+import { Bell, User, Wifi, Battery } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { FinancialDashboardSimple } from "@/components/financial-dashboard-simple"
+import { FinancialDashboard } from "@/components/financial-dashboard"
+import { DefiDashboard } from "@/components/defi-dashboard"
+import { LifestyleDashboard } from "@/components/lifestyle-dashboard"
 
 export default function StablecoinWallet() {
-  const [activeTab, setActiveTab] = useState("wallet")
+  const [activeTab, setActiveTab] = useState("home")
   const [showSwipeHint, setShowSwipeHint] = useState(false)
   const [swipeDirection, setSwipeDirection] = useState<"left" | "right">("right")
+  const [currentTime, setCurrentTime] = useState(new Date())
 
   // Define tab order for swipe navigation
-  const tabs = ["wallet", "transfer", "cards", "analytics", "settings"]
+  const tabs = ["home", "wallet", "transfer", "defi", "cards", "rewards", "analytics", "settings"]
   const currentTabIndex = tabs.indexOf(activeTab)
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date())
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [])
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab)
@@ -59,7 +71,7 @@ export default function StablecoinWallet() {
     const timer = setTimeout(() => {
       setSwipeDirection("right")
       setShowSwipeHint(true)
-    }, 2000)
+    }, 3000)
 
     return () => clearTimeout(timer)
   }, [])
@@ -69,10 +81,36 @@ export default function StablecoinWallet() {
       <>
         {(() => {
           switch (activeTab) {
+            case "home":
+              return <FuturisticHome onNavigate={handleTabChange} />
             case "wallet":
               return <WalletDashboard onTransferClick={() => handleTabChange("transfer")} />
             case "transfer":
               return <TransferWorking />
+            case "defi":
+              return (
+                <div className="space-y-6">
+                  <div className="text-center text-white">
+                    <h2 className="text-2xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+                      DeFi Hub
+                    </h2>
+                    <p className="text-gray-400">Maximize your yields with decentralized finance</p>
+                  </div>
+                  <DefiDashboard />
+                </div>
+              )
+            case "rewards":
+              return (
+                <div className="space-y-6">
+                  <div className="text-center text-white">
+                    <h2 className="text-2xl font-bold mb-2 bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
+                      Rewards Hub
+                    </h2>
+                    <p className="text-gray-400">Earn rewards and unlock exclusive lifestyle benefits</p>
+                  </div>
+                  <LifestyleDashboard />
+                </div>
+              )
             case "cards":
               return <CardsManagement />
             case "analytics":
@@ -81,14 +119,16 @@ export default function StablecoinWallet() {
               return (
                 <div className="space-y-6">
                   <div className="text-center text-white">
-                    <h2 className="text-2xl font-bold mb-2">Financial Management</h2>
+                    <h2 className="text-2xl font-bold mb-2 bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
+                      Financial Management
+                    </h2>
                     <p className="text-gray-400">Track your expenses, budgets, and financial goals</p>
                   </div>
-                  <FinancialDashboardSimple />
+                  <FinancialDashboard />
                 </div>
               )
             default:
-              return <WalletDashboard onTransferClick={() => handleTabChange("transfer")} />
+              return <FuturisticHome onNavigate={handleTabChange} />
           }
         })()}
       </>
@@ -97,18 +137,24 @@ export default function StablecoinWallet() {
 
   const getPageTitle = () => {
     switch (activeTab) {
+      case "home":
+        return "Home"
       case "wallet":
         return "Wallet"
       case "transfer":
-        return "Transfer Funds"
+        return "Transfer"
+      case "defi":
+        return "DeFi"
       case "cards":
         return "Cards"
+      case "rewards":
+        return "Rewards"
       case "analytics":
         return "Analytics"
       case "settings":
         return "Settings"
       default:
-        return "Wallet"
+        return "Home"
     }
   }
 
@@ -116,67 +162,90 @@ export default function StablecoinWallet() {
     return ((currentTabIndex + 1) / tabs.length) * 100
   }
 
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString("en-US", {
+      hour12: false,
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  }
+
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
       <AuroraBackground />
 
       <div className="relative z-10 flex flex-col min-h-screen" ref={swipeRef}>
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 bg-black/50 backdrop-blur-lg border-b border-gray-800 flex-shrink-0">
-          <div>
-            <h1 className="text-xl font-bold text-white">{getPageTitle()}</h1>
-            <div className="flex items-center space-x-2">
-              <p className="text-gray-400 text-sm">Stablecoin Wallet</p>
-              <div className="flex items-center space-x-1">
-                {tabs.map((_, index) => (
-                  <div
-                    key={index}
-                    className={`w-1.5 h-1.5 rounded-full transition-colors ${
-                      index === currentTabIndex ? "bg-purple-400" : "bg-gray-600"
-                    }`}
-                  />
-                ))}
+        {/* Futuristic Header */}
+        <div className="flex items-center justify-between p-4 bg-black/60 backdrop-blur-xl border-b border-gray-700/50 flex-shrink-0">
+          <div className="flex items-center space-x-3">
+            <div>
+              <h1 className="text-lg font-bold text-white">{getPageTitle()}</h1>
+              <div className="flex items-center space-x-4 text-xs text-gray-400">
+                <span className="flex items-center space-x-1">
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                  <span>Online</span>
+                </span>
+                <span className="flex items-center space-x-1">
+                  <Wifi className="w-3 h-3" />
+                  <span>5G</span>
+                </span>
+                <span>{formatTime(currentTime)}</span>
               </div>
             </div>
           </div>
+
           <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1 text-xs text-gray-400">
+              <Battery className="w-3 h-3" />
+              <span>85%</span>
+            </div>
             <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
-              <Bell className="w-5 h-5" />
+              <Bell className="w-4 h-4" />
             </Button>
             <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
-              <User className="w-5 h-5" />
+              <User className="w-4 h-4" />
             </Button>
           </div>
         </div>
 
-        {/* Progress Bar */}
-        <div className="h-0.5 bg-gray-800">
+        {/* Animated Progress Bar */}
+        <div className="h-1 bg-gray-800/50">
           <div
-            className="h-full bg-gradient-to-r from-purple-500 to-blue-500 transition-all duration-300 ease-out"
+            className="h-full bg-gradient-to-r from-purple-500 via-blue-500 to-cyan-500 transition-all duration-500 ease-out relative overflow-hidden"
             style={{ width: `${getTabProgress()}%` }}
-          />
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse" />
+          </div>
         </div>
 
-        {/* Main Content */}
-        <div className="flex-1 p-4 pb-24 overflow-y-auto">
-          <div className="transition-all duration-300 ease-in-out">{renderContent()}</div>
+        {/* Main Content with Enhanced Animations */}
+        <div className="flex-1 p-4 pb-28 overflow-y-auto">
+          <div className="transition-all duration-500 ease-in-out transform">{renderContent()}</div>
         </div>
 
-        {/* Swipe Hint */}
-        <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 z-30 pointer-events-none">
+        {/* Futuristic Swipe Hint */}
+        <div className="fixed bottom-32 left-1/2 transform -translate-x-1/2 z-30 pointer-events-none">
           {showSwipeHint && (
-            <div className="bg-black/80 backdrop-blur-sm rounded-full px-4 py-2 text-white text-sm animate-fade-in-out">
-              👈 Swipe to navigate 👉
+            <div className="bg-black/90 backdrop-blur-xl rounded-full px-6 py-3 text-white text-sm border border-gray-700/50 shadow-2xl animate-fade-in-out">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" />
+                <span>👈 Swipe to navigate 👉</span>
+                <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
+              </div>
             </div>
           )}
         </div>
 
-        {/* Bottom Navigation */}
+        {/* Enhanced Bottom Navigation */}
         <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />
       </div>
 
-      {/* Swipe Indicators */}
+      {/* Enhanced Swipe Indicators */}
       <SwipeIndicator show={showSwipeHint} direction={swipeDirection} />
+
+      {/* Additional Futuristic Elements */}
+      <div className="fixed top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500/50 via-blue-500/50 to-cyan-500/50 animate-pulse" />
+      <div className="fixed bottom-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500/50 via-blue-500/50 to-purple-500/50 animate-pulse" />
     </div>
   )
 }
